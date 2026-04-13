@@ -2,13 +2,13 @@
 
 <p align="center">
   <a href="https://github.com/stellar-defi-auditor/stellar-defi-auditor">
-    <img src="https://img.shields.io/github/license/stellar-financial-audit/stellar-financial-audit" alt="License">
+    <img src="https://img.shields.io/github/license/stellar-defi-auditor/stellar-defi-auditor" alt="License">
   </a>
   <a href="https://github.com/stellar-financial-audit/stellar-financial-audit/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/stellar-financial-audit/stellar-financial-audit/ci.yml" alt="Build">
+    <img src="https://img.shields.io/github/actions/workflow/status/stellar-defi-auditor/stellar-defi-auditor/ci.yml" alt="Build">
   </a>
   <a href="https://www.npmjs.com/package/stellar-financial-audit">
-    <img src="https://img.shields.io/npm/v/stellar-financial-audit" alt="NPM">
+    <img src="https://img.shields.io/npm/v/stellar-defi-auditor" alt="NPM">
   </a>
   <a href="https://discord.gg/stellar-dao">
     <img src="https://img.shields.io/discord/1234567890" alt="Discord">
@@ -111,7 +111,7 @@ npm run docker:down
 ## Project Structure
 
 ```
-stellar-financial-audit/
+stellar-defi-auditor/
 ├── src/
 │   ├── mappings/          # Event handlers and data transformation
 │   ├── ingestor/        # RPC client and polling logic
@@ -152,5 +152,5 @@ Apache License 2.0 - See [LICENSE](LICENSE) for details.
 ## Support
 
 - Discord: [Stellar DAO Discord](https://discord.gg/stellar-dao)
-- Issues: [GitHub Issues](https://github.com/stellar-financial-audit/stellar-financial-audit/issues)
+- Issues: [GitHub Issues](https://github.com/stellar-defi-auditor/stellar-defi-auditor/issues)
 - Stellar Developers: [Stellar Developer Hub](https://developers.stellar.org)
