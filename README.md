@@ -4,10 +4,10 @@
   <a href="https://github.com/stellar-defi-auditor/stellar-defi-auditor">
     <img src="https://img.shields.io/github/license/stellar-defi-auditor/stellar-defi-auditor" alt="License">
   </a>
-  <a href="https://github.com/stellar-financial-audit/stellar-financial-audit/actions">
+  <a href="https://github.com/stellar-defi-auditor/stellar-defi-auditor/actions">
     <img src="https://img.shields.io/github/actions/workflow/status/stellar-defi-auditor/stellar-defi-auditor/ci.yml" alt="Build">
   </a>
-  <a href="https://www.npmjs.com/package/stellar-financial-audit">
+  <a href="https://www.npmjs.com/package/stellar-defi-auditor">
     <img src="https://img.shields.io/npm/v/stellar-defi-auditor" alt="NPM">
   </a>
   <a href="https://discord.gg/stellar-dao">
