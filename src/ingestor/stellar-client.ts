@@ -4,7 +4,7 @@
  * This module handles polling Stellar Core or Soroban RPC provider
  * to fetch contract events and transactions.
  * 
- * @author Stellar Financial Audit Team
+ * @author Stellar DeFi Auditor Team
  * @version 1.0.0
  */
 

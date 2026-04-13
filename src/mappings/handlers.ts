@@ -4,7 +4,7 @@
  * This module handles parsing and transforming Soroban contract events
  * into structured data suitable for the audit system.
  * 
- * @author Stellar Financial Audit Team
+ * @author Stellar DeFi Auditor Team
  * @version 1.0.0
  */
 

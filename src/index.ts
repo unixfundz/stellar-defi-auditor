@@ -1,7 +1,7 @@
 /**
  * Application Entry Point - Stellar Financial Audit Indexer
  * 
- * @author Stellar Financial Audit Team
+ * @author Stellar DeFi Auditor Team
  * @version 1.0.0
  */
 
@@ -24,7 +24,7 @@ interface AppConfig {
 /**
  * Main application class
  */
-class StellarFinancialAudit {
+class StellarDefiAuditor {
   private client: StellarEventClient;
   private config: AppConfig;
   private isRunning: boolean = false;
@@ -143,7 +143,7 @@ async function main(): Promise<void> {
     batchSize: parseInt(process.env.BATCH_SIZE || '50', 10),
   };
   
-  const app = new StellarFinancialAudit(config);
+  const app = new StellarDefiAuditor(config);
   
   // Handle graceful shutdown
   process.on('SIGINT', async () => {
@@ -165,7 +165,7 @@ async function main(): Promise<void> {
 }
 
 // Export for testing
-export { StellarFinancialAudit, healthCheck };
+export { StellarDefiAuditor, healthCheck };
 
 // Run if executed directly
 if (require.main === module) {

@@ -1,5 +1,5 @@
 /**
- * Core type definitions for Stellar Financial Audit Indexer
+ * Core type definitions for Stellar DeFi Auditor
  * 
  * These types represent the fundamental data structures used
  * throughout the indexing system for tracking Stellar/Soroban

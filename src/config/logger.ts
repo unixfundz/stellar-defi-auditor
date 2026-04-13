@@ -1,7 +1,7 @@
 /**
  * Logger Configuration - Winston Logger
  * 
- * @author Stellar Financial Audit Team
+ * @author Stellar DeFi Auditor Team
  * @version 1.0.0
  */
 
