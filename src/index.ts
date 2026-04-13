@@ -34,7 +34,7 @@ class StellarDefiAuditor {
     const networkConfig = StellarClientFactory.getNetworkConfig(config.network);
     this.client = new StellarEventClient(networkConfig);
     
-    logger.info('Stellar Financial Audit Indexer initialized', {
+    logger.info('Stellar DeFi Auditor initialized'), {
       network: config.network,
       port: config.port,
     });
@@ -50,7 +50,7 @@ class StellarDefiAuditor {
     }
     
     this.isRunning = true;
-    logger.info('Starting Stellar Financial Audit Indexer...');
+    logger.info('Starting Stellar DeFi Auditor...'));
     
     // Check RPC connection
     const isHealthy = await this.client.healthCheck();
@@ -76,7 +76,7 @@ class StellarDefiAuditor {
     }
     
     this.isRunning = false;
-    logger.info('Stopping Stellar Financial Audit Indexer...');
+    logger.info('Stopping Stellar DeFi Auditor...'));
   }
   
   /**
@@ -161,7 +161,7 @@ async function main(): Promise<void> {
   // Start the application
   await app.start();
   
-  logger.info('Stellar Financial Audit Indexer is running');
+  logger.info('Stellar DeFi Auditor is running'));
 }
 
 // Export for testing
