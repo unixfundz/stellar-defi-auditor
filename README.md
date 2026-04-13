@@ -1,4 +1,4 @@
-# Stellar Financial Audit Indexer
+# Stellar DeFi Auditor
 
 <p align="center">
   <a href="https://github.com/stellar-defi-auditor/stellar-defi-auditor">

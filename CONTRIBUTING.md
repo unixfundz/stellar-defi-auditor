@@ -1,4 +1,4 @@
-# Contributing to Stellar Financial Audit
+# Contributing to Stellar DeFi Auditor
 
 Thank you for your interest in contributing! This document outlines the guidelines for contributing to the Stellar Financial Audit project.
 
