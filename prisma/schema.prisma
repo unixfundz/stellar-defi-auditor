@@ -1,0 +1,311 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum EventType {
+  TRANSFER
+  SWAP
+  LIQUIDITY_DEPOSIT
+  LIQUIDITY_WITHDRAWAL
+  INVOCATION
+  ACCOUNT_CREDIT
+  ACCOUNT_DEBIT
+  CUSTOM
+}
+
+enum OperationType {
+  CREATE_ACCOUNT
+  PAYMENT
+  PATH_PAYMENT_STRICT_RECEIVE
+  PATH_PAYMENT_STRICT_SEND
+  MANAGE_SELL_OFFER
+  MANAGE_BUY_OFFER
+  CREATE_PASSIVE_SELL_OFFER
+  SET_TRUST_LINE_FLAGS
+  MANAGE_DATA
+  BUMP_SEQUENCE
+  INVOKE_CONTRACT_FUNCTION
+  EXTEND_FOOTPRINT_TTL
+  RESTORE_FOOTPRINT
+}
+
+enum AssetType {
+  NATIVE
+  CREDIT_ALPHANUM4
+  CREDIT_ALPHANUM12
+  LIQUIDITY_POOL_SHARES
+}
+
+enum LiquidityPoolType {
+  CONSTANT_PRODUCT
+  CONSTANT_PRODUCT_2PS
+}
+
+enum AuditStatus {
+  PENDING
+  PROCESSED
+  FAILED
+  RECONCILED
+}
+
+model TrackedContract {
+  id              String         @id @default(uuid())
+  contractId      String         @unique
+  label           String?
+  contractType    String?
+  isActive        Boolean       @default(true)
+  startLedger    BigInt         @default(0)
+  lastSyncedLedger BigInt       @default(0)
+  events          ContractEvent[]
+  auditLogs       AuditLog[]
+  webhooks        WebhookSubscription[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@index([contractId])
+  @@index([isActive])
+  @@map("tracked_contracts")
+}
+
+model ContractEvent {
+  id                String          @id @default(uuid())
+  trackedContract   TrackedContract @relation(fields: [trackedContractId], references: [id])
+  trackedContractId String
+  eventType         EventType
+  txHash            String
+  ledger            BigInt
+  eventIndex        Int
+  topic             String?
+  payload          Json
+  emittedAt        DateTime
+  createdAt         DateTime         @default(now())
+
+  @@unique([txHash, eventIndex, trackedContractId], name: "uq_event_tx_index_contract")
+  @@index([eventType])
+  @@index([ledger])
+  @@index([txHash])
+  @@map("contract_events")
+}
+
+model FinancialTransaction {
+  id                      String               @id @default(uuid())
+  txHash                   String               @unique
+  sourceAccount           String
+  feeBumpTxHash           String?
+  isTransactionEnvelopeB64 Boolean             @default(false)
+  transactionEnvelope     String
+  ledger                  BigInt
+  ledgerCloseTime         DateTime
+  successful              Boolean
+  applicationOrder       Int
+  feeCharged              BigInt
+  maxFee                  BigInt
+  operationCount          Int
+  signatureBase64        String
+  signatures             String[]
+  operations              TransactionOperation[]
+  createdAt               DateTime             @default(now())
+  updatedAt               DateTime             @updatedAt
+
+  @@index([sourceAccount])
+  @@index([ledger])
+  @@index([successful])
+  @@index([ledgerCloseTime])
+  @@map("financial_transactions")
+}
+
+model TransactionOperation {
+  id                String               @id @default(uuid())
+  transaction       FinancialTransaction @relation(fields: [transactionId], references: [id])
+  transactionId     String
+  operationIndex    Int
+  operationType     OperationType
+  operationDetails Json
+  sourceAccount     String?
+  createdAt        DateTime             @default(now())
+
+  @@unique([transactionId, operationIndex])
+  @@index([operationType])
+  @@map("transaction_operations")
+}
+
+model AuditLog {
+  id                String        @id @default(uuid())
+  eventType         EventType
+  contractId        String
+  transactionHash   String
+  ledger           BigInt
+  previousBalance  String?
+  newBalance      String?
+  amount          String?
+  assetCode       String?
+  assetIssuer     String?
+  fromAddress    String?
+  toAddress      String?
+  liquidityPoolId String?
+  poolTokenReceived String?
+  metadata       Json
+  status          AuditStatus  @default(PENDING)
+  trackedContract TrackedContract? @relation(fields: [trackedContractId], references: [id])
+  trackedContractId String?
+  createdAt       DateTime      @default(now())
+
+  @@index([eventType])
+  @@index([contractId])
+  @@index([ledger])
+  @@index([transactionHash])
+  @@index([status])
+  @@index([fromAddress])
+  @@index([toAddress])
+  @@map("audit_logs")
+}
+
+model TrackedAccount {
+  id                String          @id @default(uuid())
+  accountId         String          @unique
+  label             String?
+  isActive          Boolean         @default(true)
+  startLedger       BigInt          @default(0)
+  lastSyncedLedger  BigInt          @default(0)
+  balances         AccountBalance[]
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  @@index([accountId])
+  @@index([isActive])
+  @@map("tracked_accounts")
+}
+
+model AccountBalance {
+  id                String         @id @default(uuid())
+  trackedAccount    TrackedAccount @relation(fields: [trackedAccountId], references: [id])
+  trackedAccountId String
+  balance          String
+  assetCode        String
+  assetIssuer     String?
+  assetType       AssetType
+  snapshotLedger BigInt
+  recordedAt     DateTime
+
+  @@index([trackedAccountId])
+  @@index([assetCode])
+  @@index([snapshotLedger])
+  @@map("account_balances")
+}
+
+model LiquidityPool {
+  id                 String         @id @default(uuid())
+  poolId             String         @unique
+  poolType           LiquidityPoolType
+  tokenA             String
+  tokenB             String
+  tokenAIssuer       String?
+  tokenBIssuer       String?
+  reserveA           String         @default("0")
+  reserveB           String         @default("0")
+  totalPoolShares    String         @default("0")
+  lastSyncedLedger  BigInt         @default(0)
+  swaps             LiquidityPoolSwap[]
+  deposits          LiquidityPoolDeposit[]
+  withdrawals      LiquidityPoolWithdrawal[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([poolId])
+  @@index([tokenA])
+  @@index([tokenB])
+  @@map("liquidity_pools")
+}
+
+model LiquidityPoolSwap {
+  id               String         @id @default(uuid())
+  liquidityPool    LiquidityPool  @relation(fields: [liquidityPoolId], references: [id])
+  liquidityPoolId  String
+  txHash           String
+  ledger           BigInt
+  eventIndex       Int
+  fromToken       String
+  toToken         String
+  fromAmount     String
+  toAmount       String
+  priceImpact    String?
+  createdAt      DateTime       @default(now())
+
+  @@unique([txHash, eventIndex])
+  @@index([liquidityPoolId])
+  @@index([ledger])
+  @@map("liquidity_pool_swaps")
+}
+
+model LiquidityPoolDeposit {
+  id                String         @id @default(uuid())
+  liquidityPool     LiquidityPool  @relation(fields: [liquidityPoolId], references: [id])
+  liquidityPoolId   String
+  txHash           String
+  ledger           BigInt
+  eventIndex       Int
+  depositor        String
+  reserveA        String
+  reserveB        String
+  poolSharesMinted String
+  createdAt      DateTime       @default(now())
+
+  @@unique([txHash, eventIndex])
+  @@index([liquidityPoolId])
+  @@index([depositor])
+  @@map("liquidity_pool_deposits")
+}
+
+model LiquidityPoolWithdrawal {
+  id                 String         @id @default(uuid())
+  liquidityPool     LiquidityPool  @relation(fields: [liquidityPoolId], references: [id])
+  liquidityPoolId   String
+  txHash           String
+  ledger           BigInt
+  eventIndex       Int
+  withdrawer      String
+  reserveA        String
+  reserveB        String
+  poolSharesBurned String
+  createdAt      DateTime       @default(now())
+
+  @@unique([txHash, eventIndex])
+  @@index([liquidityPoolId])
+  @@index([withdrawer])
+  @@map("liquidity_pool_withdrawals")
+}
+
+model WebhookSubscription {
+  id                String          @id @default(uuid())
+  targetUrl         String
+  secret           String
+  isActive         Boolean         @default(true)
+  eventType        EventType?
+  trackedContract TrackedContract? @relation(fields: [trackedContractId], references: [id])
+  trackedContractId String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([isActive])
+  @@index([eventType])
+  @@map("webhook_subscriptions")
+}
+
+model IndexerState {
+  id                    String   @id @default(uuid())
+  network               String
+  lastProcessedLedger  BigInt   @default(0)
+  lastProcessedCursor String?
+  lastEventTimestamp DateTime?
+  isReconciling      Boolean  @default(false)
+  lastReconciliationAt DateTime?
+  updatedAt          DateTime @updatedAt
+
+  @@unique([network], name: "uq_indexer_state_network")
+  @@map("indexer_state")
+}

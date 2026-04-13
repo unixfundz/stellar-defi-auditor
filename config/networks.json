@@ -1,0 +1,34 @@
+{
+  "networks": {
+    "mainnet": {
+      "name": "Stellar Mainnet",
+      "network": "mainnet",
+      "horizonUrl": "https://horizon.stellar.org",
+      "rpcUrl": "https://soroban-rpc.stellar.org",
+      "passphrase": "Public Global Stellar Network ; September 2015"
+    },
+    "testnet": {
+      "name": "Stellar Testnet",
+      "network": "testnet",
+      "horizonUrl": "https://horizon-testnet.stellar.org",
+      "rpcUrl": "https://soroban-rpc-testnet.stellar.org",
+      "passphrase": "Test SDF Network ; September 2015",
+      "friendbotUrl": "https://friendbot.stellar.org"
+    },
+    "futurenet": {
+      "name": "Stellar Futurenet",
+      "network": "futurenet",
+      "horizonUrl": "https://horizon-futurenet.stellar.org",
+      "rpcUrl": "https://soroban-rpc-futurenet.stellar.org",
+      "passphrase": "Test SDF Future Network ; October 2022",
+      "friendbotUrl": "https://friendbot-futurenet.stellar.org"
+    }
+  },
+  "indexer": {
+    "pollingIntervalMs": 5000,
+    "batchSize": 50,
+    "rpcMaxRetries": 3,
+    "rpcRetryDelayMs": 1000,
+    "trackedContracts": []
+  }
+}

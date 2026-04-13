@@ -1,0 +1,89 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: stellar-defi-auditor-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-stellar_audit}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-stellar_audit_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-stellar_financial_audit}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stellar_audit}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - stellar-audit-network
+
+  # Indexer Service
+  indexer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stellar-defi-auditor-indexer
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-stellar_audit}:${POSTGRES_PASSWORD:-stellar_audit_pass}@postgres:5432/${POSTGRES_DB:-stellar_financial_audit}
+      NETWORK: ${NETWORK:-testnet}
+      HORIZON_URL: ${HORIZON_URL:-https://horizon-testnet.stellar.org}
+      RPC_URL: ${RPC_URL:-https://soroban-rpc-testnet.stellar.org}
+      POLLING_INTERVAL_MS: ${POLLING_INTERVAL_MS:-5000}
+      BATCH_SIZE: ${BATCH_SIZE:-50}
+      RPC_MAX_RETRIES: ${RPC_MAX_RETRIES:-3}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - "${INDEXER_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - stellar-audit-network
+    restart: unless-stopped
+    volumes:
+      - ./config:/app/config
+
+  # Redis for caching and message queue
+  redis:
+    image: redis:7-alpine
+    container_name: stellar-defi-auditor-redis
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    networks:
+      - stellar-audit-network
+    restart: unless-stopped
+
+  # Worker Service (for background processing)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: stellar-defi-auditor-worker
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-stellar_audit}:${POSTGRES_PASSWORD:-stellar_audit_pass}@postgres:5432/${POSTGRES_DB:-stellar_financial_audit}
+      REDIS_URL: redis://redis:6379
+      NETWORK: ${NETWORK:-testnet}
+      HORIZON_URL: ${HORIZON_URL:-https://horizon-testnet.stellar.org}
+      RPC_URL: ${RPC_URL:-https://soroban-rpc-testnet.stellar.org}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    networks:
+      - stellar-audit-network
+    restart: unless-stopped
+
+networks:
+  stellar-audit-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
